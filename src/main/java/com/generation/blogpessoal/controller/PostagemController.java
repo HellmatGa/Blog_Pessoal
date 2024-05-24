@@ -19,16 +19,20 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.generation.blogpessoal.model.Postagem;
 import com.generation.blogpessoal.repository.PostagemRepository;
+import com.generation.blogpessoal.repository.TemaRepository;
 
 import jakarta.validation.Valid;
 
-@RestController // anotação que diz para string que essa é uma controladora de rotas e acesso aos metodos
+@RestController // anotação que diz para string que essa é uma controladora metodos
 @RequestMapping("/postagens") // rota para chegar nessa classe "insomnia"
 @CrossOrigin(origins = "*", allowedHeaders = "*")// liberar acesso a outras maquinas
 public class PostagemController {
 
 	@Autowired //Injeção de dependencias - instanciar a classe PostagemRepository
 	private PostagemRepository postagemRepository;
+	
+	@Autowired
+	private TemaRepository temaRepository;
 	
 	@GetMapping //define o verbo http que atende esse metodo
 	public ResponseEntity<List<Postagem>> getAll(){
@@ -62,13 +66,18 @@ public class PostagemController {
 	
 	@PutMapping
 	public ResponseEntity<Postagem> put(@Valid @RequestBody Postagem postagem){
+		if (postagemRepository.existsById(postagem.getId())) {
+			
+			if (temaRepository.existsById(postagem.getTema().getId()))
+		return ResponseEntity.status(HttpStatus.OK)
+				.body(postagemRepository.save(postagem));
 		
-		return postagemRepository.findById(postagem.getId())
-				.map(resposta-> ResponseEntity.status(HttpStatus.OK)
-				.body(postagemRepository.save(postagem)))
-				.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+		throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tema não existe!", null);
 	}
 	
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+ 
+}	
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id) {
 		Optional<Postagem> postagem = postagemRepository.findById(id);
@@ -78,5 +87,4 @@ public class PostagemController {
 		
 		postagemRepository.deleteById(id);
 	}
-	
 }
