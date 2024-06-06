@@ -107,7 +107,7 @@ public class UsuarioControllerTest {
 				0L, "Ricardo Marques", "ricardo_marques@email.com.br", "ricardo123", "-"));
 		
 		ResponseEntity<String> resposta = testRestTemplate
-				.withBasicAuth("root@root", "rootroot")
+				.withBasicAuth("root@root.com", "rootroot")
 				.exchange("/usuarios/all", HttpMethod.GET, null, String.class);
 		
 		assertEquals(HttpStatus.OK, resposta.getStatusCode());
